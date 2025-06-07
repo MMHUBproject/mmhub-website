@@ -1,0 +1,1150 @@
+
+<!-- saved from url=(0132)blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d -->
+<html lang="mn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjhmODcxYTU0ODRjYWM0MjU5NTBiNzhiNGZhNWMxZGZlMjkzYjgwYWEiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6XC9cL2lkZW50aXR5dG9vbGtpdC5nb29nbGVhcGlzLmNvbVwvZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxNDgxNDQzMDY4NDIwOTIzNDU2OCIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJleHAiOjE3NDkxODMzMTcsImlhdCI6MTc0OTE3OTcxNywiYWxnIjoiUlMyNTYifQ.FjcQU6gfjS25unEQ9UKrv4HzaQs0j-ptkG98zJvvbzJSHUlCVtGefpgyeILa4YNwWTiCe6ZNDkKtTu5AMTNajdAP2_Pri1349Z_wEmsm-7AvK99Axox6QTWd-S6PaOabYry_bfGEGsQoGfXqWiA_Vk5zC_oPNWjGyaAUym5kiQqlxmenAAPMUNPJaBaV62xpGwaQT-DbAgnsCNtpQGizJfZDroWjGZqDnRrUNJ-nZYonEiWp-QN1pTUv4Oqnhuddwo9Yi0e7QgIyg-gBzX_bLAgn5TmjDkX2HekxnhKzl85r6oiB_tTXQuGp4PFKZgmtvHkoYHWFTksPKcbtzO2o8A","c_401a4cb2f47e929f_mmhub_website_prototype-543")</script><script>(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script>let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          const mediaPromiseId = nextMediaPromiseId++;
+          const promise = new Promise((resolve, reject) => {
+            pendingMediaResolvers[mediaPromiseId] = (granted) => {
+              delete pendingMediaResolvers[mediaPromiseId];
+              if (granted) {
+                if (originalGetUserMedia) {
+                  originalGetUserMedia(constraints).then(resolve).catch(reject);
+                } else {
+                  reject(new Error("Original getUserMedia not available."));
+                }
+              } else {
+              reject(new DOMException('Permission denied', 'NotAllowedError'));
+            }
+          };
+        });
+
+        window.parent.postMessage({
+          type: 'requestMediaPermission',
+          constraints: constraints,
+          promiseId: mediaPromiseId,
+        }, '*');
+
+        return promise;
+      },
+      writable: false,
+      configurable: false
+    });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script>(function() {
+  const originalFetch = window.fetch;
+  const googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/veo-2.0-generate-001:predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/veo-2.0-generate-001:predictLongRunning',
+  ];
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: 'models/' + modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+})();</script><script>(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Made in Mongolia HUB - Вебсайт</title>
+    <script src="https://cdn.tailwindcss.com/"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet">
+    <!-- Font Awesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #F8F2E2; /* Зурагнаас авсан зөөлөн шаргал / элсэрхэг өнгө */
+            color: #1E2A4F; /* Зурагнаас авсан хар хөх / Navy Blue */
+        }
+        .section-padding {
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #A00000; /* Улаан хүрэн акцент өнгө */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Product card styling */
+        .product-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            text-align: center;
+        }
+        .product-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .product-card-body {
+            padding: 1rem;
+        }
+        .product-card-title {
+            font-weight: bold;
+            color: #1E2A4F;
+            margin-bottom: 0.5rem;
+        }
+        .product-card-price {
+            color: #A00000;
+            font-weight: bold;
+            font-size: 1.125rem;
+        }
+        /* Responsive video container */
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            /* Added for better centering and max-width */
+            max-width: 800px; /* Adjust as needed */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #A00000; /* Accent color */
+            color: white;
+            font-size: 1.5rem;
+            transition: background-color 0.3s ease;
+        }
+        .social-icon:hover {
+            background-color: #7a0000; /* Darker accent on hover */
+        }
+        /* Logo styling for supporting organizations */
+        .logo-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 120px; /* Fixed height for consistent logo display */
+        }
+        .logo-item img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.16 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.container{width:100%}@media (min-width: 640px){.container{max-width:640px}}@media (min-width: 768px){.container{max-width:768px}}@media (min-width: 1024px){.container{max-width:1024px}}@media (min-width: 1280px){.container{max-width:1280px}}@media (min-width: 1536px){.container{max-width:1536px}}.float-right{float:right}.mx-auto{margin-left:auto;margin-right:auto}.mb-12{margin-bottom:3rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-8{margin-bottom:2rem}.mt-16{margin-top:4rem}.mt-4{margin-top:1rem}.mb-6{margin-bottom:1.5rem}.ml-3{margin-left:0.75rem}.mr-3{margin-right:0.75rem}.mt-12{margin-top:3rem}.mt-8{margin-top:2rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-6{height:1.5rem}.h-full{height:100%}.h-auto{height:auto}.w-6{width:1.5rem}.w-full{width:100%}.max-w-2xl{max-width:42rem}.max-w-4xl{max-width:56rem}.max-w-3xl{max-width:48rem}.max-w-5xl{max-width:64rem}.list-inside{list-style-position:inside}.list-disc{list-style-type:disc}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.space-x-4 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(1rem * var(--tw-space-x-reverse));margin-left:calc(1rem * calc(1 - var(--tw-space-x-reverse)))}.space-x-6 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(1.5rem * var(--tw-space-x-reverse));margin-left:calc(1.5rem * calc(1 - var(--tw-space-x-reverse)))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.border{border-width:1px}.border-t{border-top-width:1px}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.border-gray-300{--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.bg-red-800{--tw-bg-opacity:1;background-color:rgb(153 27 27 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-gray-900{--tw-bg-opacity:1;background-color:rgb(17 24 39 / var(--tw-bg-opacity, 1))}.object-contain{object-fit:contain}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-3{padding:0.75rem}.p-8{padding:2rem}.px-4{padding-left:1rem;padding-right:1rem}.px-8{padding-left:2rem;padding-right:2rem}.py-20{padding-top:5rem;padding-bottom:5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-12{padding-top:3rem;padding-bottom:3rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.pt-4{padding-top:1rem}.text-center{text-align:center}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-5xl{font-size:3rem;line-height:1}.text-6xl{font-size:3.75rem;line-height:1}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-red-800{--tw-text-opacity:1;color:rgb(153 27 27 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.opacity-90{opacity:0.9}.opacity-75{opacity:0.75}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:bg-red-100:hover{--tw-bg-opacity:1;background-color:rgb(254 226 226 / var(--tw-bg-opacity, 1))}.hover\:bg-red-900:hover{--tw-bg-opacity:1;background-color:rgb(127 29 29 / var(--tw-bg-opacity, 1))}.hover\:text-red-800:hover{--tw-text-opacity:1;color:rgb(153 27 27 / var(--tw-text-opacity, 1))}.hover\:text-gray-700:hover{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.focus\:border-red-800:focus{--tw-border-opacity:1;border-color:rgb(153 27 27 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-red-800:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(153 27 27 / var(--tw-ring-opacity, 1))}@media (min-width: 640px){.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}}@media (min-width: 768px){.md\:col-span-1{grid-column:span 1 / span 1}.md\:block{display:block}.md\:hidden{display:none}.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.md\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.md\:text-4xl{font-size:2.25rem;line-height:2.5rem}.md\:text-5xl{font-size:3rem;line-height:1}.md\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width: 1024px){.lg\:grid-cols-5{grid-template-columns:repeat(5, minmax(0, 1fr))}.lg\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}}</style></head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header class="bg-white shadow-md p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#" class="h-10 flex items-center">
+                <!-- Updated logo image with uploaded file -->
+                <img src="" alt="MM HUB Logo" class="h-full object-contain">
+            </a>
+            <nav class="hidden md:block">
+                <ul class="flex space-x-6">
+                    <li><a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#about" class="text-gray-700 hover:text-red-800 font-medium transition-colors">Бидний тухай</a></li>
+                    <li><a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#services" class="text-gray-700 hover:text-red-800 font-medium transition-colors">Үйлчилгээ</a></li>
+                    <li><a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#featured-products" class="text-gray-700 hover:text-red-800 font-medium transition-colors">Бүтээгдэхүүн</a></li>
+                    <li><a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#affiliate-marketing" class="text-gray-700 hover:text-red-800 font-medium transition-colors">Аффилиат</a></li>
+                    <li><a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#gemini-feature" class="text-gray-700 hover:text-red-800 font-medium transition-colors">✨ Шинэ Хэрэгсэл</a></li>
+                    <li><a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#contact" class="text-gray-700 hover:text-red-800 font-medium transition-colors">Холбоо барих</a></li>
+                </ul>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#cart" class="text-gray-700 hover:text-red-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </a>
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden text-gray-700 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-red-800 text-white text-center py-20 px-4">
+        <div class="container mx-auto">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4">Монголын Шилдэг Бүтээгдэхүүнийг Нэг Дороос!</h1>
+            <p class="text-lg md:text-xl max-w-2xl mx-auto mb-8 opacity-90">
+                Made in Mongolia HUB нь Монголын жижиг, дунд бизнес эрхлэгчдийн бүтээгдэхүүнийг таниулж, тэдэнд зах зээлийн судалгаа, сургалтын үйлчилгээ үзүүлэх цогц платформ юм.
+            </p>
+            <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#services" class="bg-white text-red-800 hover:bg-red-100 font-bold py-3 px-8 rounded-full text-lg transition-colors shadow-lg">
+                Дэлгэрэнгүй
+            </a>
+        </div>
+    </section>
+
+    <!-- About Section (Платформын ерөнхий мэдээлэл, Техникийн шийдэл, Санхүүжилт, Видео, Дэмжигчид) -->
+    <section id="about" class="section-padding" style="background-color: #F8F2E2;">
+        <div class="container mx-auto max-w-4xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" style="color: #1E2A4F;">Бидний тухай</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-12">
+                <div class="card p-6">
+                    <h3 class="text-2xl font-bold mb-4" style="color: #1E2A4F;">"Made in Mongolia HUB" гэж юу вэ?</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Бид Монгол улсын жижиг, дунд бизнес эрхлэгчдийн оюуны болон гар хийцийн бүтээгдэхүүн, үйлчилгээг нэгдсэн байдлаар таниулах, сурталчлах зорилготой. Энэ нь дотоодын үйлдвэрлэлийг дэмжин, Монгол брэндийг дэлхийн зах зээлд гаргах гүүр болох юм.
+                    </p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-2xl font-bold mb-4" style="color: #1E2A4F;">Бидний Гол Зорилго</h3>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2">
+                        <li>Монголын ЖДБ-үүдийн бүтээгдэхүүнийг нэг дороос таниулах.</li>
+                        <li>Бизнес эрхлэгчдэд зах зээлийн судалгаа, сургалт үзүүлэх.</li>
+                        <li>Бизнесийн үйл ажиллагаатай холбоотой судалгаа, сертификатжуулалт.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Technical Solution Section - Integrated -->
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 mt-16" style="color: #1E2A4F;">Техникийн Шийдэл</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-12">
+                <div class="card">
+                    <span class="text-6xl mb-4 inline-block" style="color: #A00000;">🌍</span>
+                    <h3 class="text-2xl font-bold mb-2" style="color: #1E2A4F;">Вэбсайт</h3>
+                    <p class="text-gray-700">Орчин үеийн, хэрэглэгчдэд ээлтэй дизайнтай вебсайт.</p>
+                </div>
+                <div class="card">
+                    <span class="text-6xl mb-4 inline-block" style="color: #A00000;">📱</span>
+                    <h3 class="text-2xl font-bold mb-2" style="color: #1E2A4F;">Мобайл Апп</h3>
+                    <p class="text-gray-700">iOS болон Android үйлдлийн системд зориулсан мобайл аппликейшн.</p>
+                </div>
+                <div class="md:col-span-1 card">
+                    <span class="text-6xl mb-4 inline-block" style="color: #A00000;">🌎</span>
+                    <h3 class="text-2xl font-bold mb-2" style="color: #1E2A4F;">Хэлний Сонголт</h3>
+                    <p class="text-gray-700">Англи, Монгол хэлний сонголттой ба олон улсын хэрэглэгчдэд хүртээмжтэй.</p>
+                </div>
+            </div>
+
+            <!-- Funding Model Section - Integrated -->
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 mt-16" style="color: #1E2A4F;">Санхүүжилтийн Загвар</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div class="card text-center">
+                    <span class="text-5xl mb-3 inline-block" style="color: #A00000;">💳</span>
+                    <h3 class="text-xl font-bold mb-2" style="color: #1E2A4F;">Бүтээгдэхүүн байршуулах төлбөр</h3>
+                    <p class="text-gray-700">Бизнес эрхлэгчдээс платформын каталогид бүтээгдэхүүнээ байршуулах сарын/жилийн төлбөр.</p>
+                </div>
+                <div class="card text-center">
+                    <span class="text-5xl mb-3 inline-block" style="color: #A00000;">💰</span>
+                    <h3 class="text-xl font-bold mb-2" style="color: #1E2A4F;">Төсөл, хөтөлбөрөөр санхүүжүүлэх</h3>
+                    <p class="text-gray-700">Олон улсын байгууллагууд болон засгийн газрын дэмжлэгтэй төсөл, хөтөлбөрүүд.</p>
+                </div>
+                <div class="card text-center">
+                    <span class="text-5xl mb-3 inline-block" style="color: #A00000;">📈</span>
+                    <h3 class="text-xl font-bold mb-2" style="color: #1E2A4F;">Сургалт, судалгааны орлого</h3>
+                    <p class="text-gray-700">Бизнесийн сургалт, семинар, зах зээлийн судалгаа, тайлангийн хураамж.</p>
+                </div>
+            </div>
+
+            <!-- Video Content Section - Integrated -->
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 mt-16" style="color: #1E2A4F;">Видео Контент</h2>
+            <p class="text-center text-gray-700 mb-8 max-w-2xl mx-auto">
+                Манай ЖДБ эрхлэгчдийн бүтээгдэхүүний онцлог, түүх, үйлдвэрлэлийн процессыг харуулсан видео танилцуулгуудыг эндээс үзээрэй.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="card p-6">
+                    <h3 class="text-2xl font-bold mb-4" style="color: #1E2A4F;">Монгол Ноос Ноолуурын Танилцуулга</h3>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+                        <!-- Та өөрийн Youtube видеоны холбоосыг дээрх src дотор өөрчилнө үү -->
+                    </div>
+                    <p class="text-gray-700 mt-4 leading-relaxed">
+                        Монголын мал аж ахуйн үнэт зүйл болох ноос, ноолуураар хэрхэн чанартай бүтээгдэхүүн хийдгийг энэхүү видеогоор үзүүллээ.
+                    </p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-2xl font-bold mb-4" style="color: #1E2A4F;">Бидний Үнэт Зүйлс: Түүхээс Ирээдүй Рүү</h3>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/o0Rj_qA1560" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+                    </div>
+                    <p class="text-gray-700 mt-4 leading-relaxed">
+                        Made in Mongolia HUB төслийн үнэт зүйлс, зорилго, ирээдүйн алсын харааг багтаасан видео.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Supporting Organizations Section - Integrated -->
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 mt-16" style="color: #1E2A4F;">Биднийг Дэмжигч Байгууллагууд</h2>
+            <p class="text-center text-gray-700 mb-8 max-w-2xl mx-auto">
+                Манай төслийг дэмжин, Монголын ЖДБ-үүдийг дэлхийн зах зээлд гарахад тусалж буй эрхэм түнш байгууллагуудад талархал илэрхийлье.
+            </p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                <!-- Example Logo 1 -->
+                <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#" target="_blank" class="logo-item">
+                    <img src="https://placehold.co/150x80/EEEEEE/333333?text=Logo+1" alt="Дэмжигч байгууллагын лого 1">
+                </a>
+                <!-- Example Logo 2 -->
+                <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#" target="_blank" class="logo-item">
+                    <img src="https://placehold.co/150x80/DDDDDD/333333?text=Logo+2" alt="Дэмжигч байгууллагын лого 2">
+                </a>
+                <!-- Example Logo 3 -->
+                <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#" target="_blank" class="logo-item">
+                    <img src="https://placehold.co/150x80/CCCCCC/333333?text=Logo+3" alt="Дэмжигч байгууллагын лого 3">
+                </a>
+                <!-- Example Logo 4 -->
+                <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#" target="_blank" class="logo-item">
+                    <img src="https://placehold.co/150x80/BBBBBB/333333?text=Logo+4" alt="Дэмжигч байгууллагын лого 4">
+                </a>
+                <!-- Example Logo 5 -->
+                <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#" target="_blank" class="logo-item">
+                    <img src="https://placehold.co/150x80/AAAAAA/333333?text=Logo+5" alt="Дэмжигч байгууллагын лого 5">
+                </a>
+                <!-- Example Logo 6 -->
+                <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#" target="_blank" class="logo-item">
+                    <img src="https://placehold.co/150x80/999999/333333?text=Logo+6" alt="Дэмжигч байгууллагын лого 6">
+                </a>
+                <!-- Example Logo 7 -->
+                <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#" target="_blank" class="logo-item">
+                    <img src="https://placehold.co/150x80/888888/333333?text=Logo+7" alt="Дэмжигч байгууллагын лого 7">
+                </a>
+                <!-- Add more logos as needed -->
+            </div>
+            <div class="text-center mt-12">
+                <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#" class="bg-red-800 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-red-900 transition-colors shadow-lg">
+                    Бидэнтэй Хамтран Ажиллах
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Functions Section (Үндсэн чиг үүрэг) -->
+    <section id="services" class="section-padding px-4" style="background-color: #F8F2E2;">
+        <div class="container mx-auto max-w-5xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" style="color: #1E2A4F;">Үндсэн Чиг Үүрэг</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center" style="color: #1E2A4F;">
+                        <span class="text-3xl mr-3" style="color: #A00000;">📚</span> Бүтээгдэхүүн Каталог
+                    </h3>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        Бид бүтээгдэхүүнүүдийг нэр төрөл, салбар, улирлын шилдэг бүтээгдэхүүн зэрэг дэлгэрэнгүй ангиллаар ялгаж, хэрэглэгчдэд хялбар хайлт, шүүлтүүрийн системээр хүргэнэ.
+                    </p>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2">
+                        <li>Нэр төрөл, салбараар ангилсан</li>
+                        <li>Улирлын шилдэг бүтээгдэхүүн</li>
+                        <li>Дэлгэрэнгүй мэдээлэл, зурагтай</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center" style="color: #1E2A4F;">
+                        <span class="text-3xl mr-3" style="color: #A00000;">💸</span> Бусад Үйлчилгээ
+                    </h3>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        Бизнес эрхлэгчдэд зах зээлд амжилттай нэвтрэхэд шаардлагатай мэдлэг, мэдээллийг олгоно.
+                    </p>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2">
+                        <li>Экспортын боломжийн шинжилгээ, судалгаа</li>
+                        <li>Сургалт, семинар</li>
+                        <li>Олон улсын стандарт, зөвлөмж</li>
+                        <li>Бүтээгдэхүүн таниулах үйлчилгээ</li>
+                    </ul>
+                </div>
+                <!-- NEW DROPSHIPPING CARD -->
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center" style="color: #1E2A4F;">
+                        <span class="text-3xl mr-3" style="color: #A00000;">🚚</span> Дропшиппинг Үйлчилгээ
+                    </h3>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        Бараа материал хадгалах, тээвэрлэлтийн асуудалгүйгээр Монгол бүтээгдэхүүн борлуулах боломжийг нээгээрэй. Бид таны захиалгыг үйлдвэрлэгч рүү шууд дамжуулж, хүргэлтийг зохион байгуулна.
+                    </p>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2">
+                        <li>Бараа материал хадгалах шаардлагагүй</li>
+                        <li>Хүргэлтийн асуудлыг бид хариуцна</li>
+                        <li>Өргөн цар хүрээтэй бүтээгдэхүүний сонголт</li>
+                    </ul>
+                    <button class="mt-4 bg-red-800 text-white font-bold py-2 px-4 rounded-md hover:bg-red-900 transition-colors">
+                        Дэлгэрэнгүй
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Section - No changes here, kept for completeness -->
+    <section id="featured-products" class="section-padding px-4" style="background-color: #F8F2E2;">
+        <div class="container mx-auto max-w-5xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" style="color: #1E2A4F;">Онцлох Бүтээгдэхүүнүүд</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Product Card 1 -->
+                <div class="product-card">
+                    <img src="https://placehold.co/400x250/C0B08E/FFFFFF?text=%D0%9D%D0%BE%D0%BE%D1%81+%D0%9D%D0%BE%D0%BE%D0%BB%D1%83%D1%83%D1%80%D0%B0%D0%BD+%D0%9E%D1%80%D0%BE%D0%BE%D0%BB%D1%82" alt="Ноос Ноолууран Ороолт">
+                    <div class="product-card-body">
+                        <h4 class="product-card-title">Ноос Ноолууран Ороолт</h4>
+                        <p class="product-card-price">65,000₮</p>
+                        <button onclick="showProductDetail(&#39;Ноос Ноолууран Ороолт&#39;, &#39;Монгол ноос ноолуураар урласан, маш зөөлөн, дулаахан, тансаг гар хийцийн ороолт. Хүйтэн өдрүүдэд таныг дулаацуулж, загварлаг харагдуулна.&#39;, &#39;65,000₮&#39;, &#39;https://placehold.co/400x250/C0B08E/FFFFFF?text=Ноос+Ноолууран+Ороолт&#39;)" class="mt-4 bg-red-800 text-white font-bold py-2 px-4 rounded-md hover:bg-red-900 transition-colors">
+                            Дэлгэрэнгүй
+                        </button>
+                    </div>
+                </div>
+                <!-- Product Card 2 -->
+                <div class="product-card">
+                    <img src="https://placehold.co/400x250/C0B08E/FFFFFF?text=%D0%9E%D1%80%D0%B3%D0%B0%D0%BD%D0%B8%D0%BA+%D0%97%D3%A9%D0%B3%D0%B8%D0%B9%D0%BD+%D0%B1%D0%B0%D0%BB" alt="Органик Зөгийн бал">
+                    <div class="product-card-body">
+                        <h4 class="product-card-title">Органик Зөгийн бал</h4>
+                        <p class="product-card-price">25,000₮</p>
+                        <button onclick="showProductDetail(&#39;Органик Зөгийн бал&#39;, &#39;Монголын байгалийн цэвэр цэцэгсээс түүсэн 100% органик зөгийн бал. Эрүүл мэндэд тустай, амт чанар сайтай.&#39;, &#39;25,000₮&#39;, &#39;https://placehold.co/400x250/C0B08E/FFFFFF?text=Органик+Зөгийн+бал&#39;)" class="mt-4 bg-red-800 text-white font-bold py-2 px-4 rounded-md hover:bg-red-900 transition-colors">
+                            Дэлгэрэнгүй
+                        </button>
+                    </div>
+                </div>
+                <!-- Product Card 3 -->
+                <div class="product-card">
+                    <img src="https://placehold.co/400x250/C0B08E/FFFFFF?text=%D0%93%D0%B0%D1%80+%D0%A5%D0%B8%D0%B9%D1%86%D0%B8%D0%B9%D0%BD+%D0%AD%D1%81%D0%B3%D0%B8%D0%B9+%D0%93%D1%83%D1%82%D0%B0%D0%BB" alt="Гар Хийцийн Эсгий Гутал">
+                    <div class="product-card-body">
+                        <h4 class="product-card-title">Гар Хийцийн Эсгий Гутал</h4>
+                        <p class="product-card-price">120,000₮</p>
+                        <button onclick="showProductDetail(&#39;Гар Хийцийн Эсгий Гутал&#39;, &#39;Уламжлалт аргаар урласан, дулаахан, эдэлгээ сайтай гар хийцийн эсгий гутал. Монгол өвлийн хүйтэнд хамгийн тохиромжтой.&#39;, &#39;120,000₮&#39;, &#39;https://placehold.co/400x250/C0B08E/FFFFFF?text=Гар+Хийцийн+Эсгий+Гутал&#39;)" class="mt-4 bg-red-800 text-white font-bold py-2 px-4 rounded-md hover:bg-red-900 transition-colors">
+                            Дэлгэрэнгүй
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Detail Section (Dynamic content) - No changes here, kept for completeness -->
+    <section id="product-detail" class="section-padding px-4 hidden" style="background-color: #F8F2E2;">
+        <div class="container mx-auto max-w-3xl card p-8">
+            <button onclick="hideProductDetail()" class="text-gray-500 hover:text-gray-700 mb-4 float-right">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <h2 id="detail-product-name" class="text-3xl md:text-4xl font-bold mb-6" style="color: #1E2A4F;">Бүтээгдэхүүний Дэлгэрэнгүй</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <img id="detail-product-image" src="" alt="Бүтээгдэхүүний зураг" class="w-full h-auto rounded-lg shadow-md">
+                </div>
+                <div>
+                    <h3 id="detail-product-title" class="text-2xl font-bold mb-3" style="color: #1E2A4F;"></h3>
+                    <p id="detail-product-price" class="text-3xl font-extrabold mb-4" style="color: #A00000;"></p>
+                    <p id="detail-product-description" class="text-gray-700 leading-relaxed mb-6"></p>
+                    <button onclick="addToCartFromDetail()" class="bg-red-800 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-red-900 transition-colors w-full">
+                        Сагсанд хийх
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shopping Cart Section - No changes here, kept for completeness -->
+    <section id="cart" class="section-padding px-4 hidden" style="background-color: #F8F2E2;">
+        <div class="container mx-auto max-w-4xl card p-8">
+             <button onclick="hideCart()" class="text-gray-500 hover:text-gray-700 mb-4 float-right">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8" style="color: #1E2A4F;">Таны Сагс</h2>
+            <div id="cart-items" class="space-y-4 mb-6">
+                <!-- Cart items will be loaded here by JavaScript -->
+                <p class="text-gray-600 text-center" id="empty-cart-message">Таны сагс хоосон байна.</p>
+            </div>
+            <div class="flex justify-between items-center border-t border-gray-200 pt-4 mt-4">
+                <span class="text-xl font-bold" style="color: #1E2A4F;">Нийт дүн:</span>
+                <span id="cart-total" class="text-2xl font-extrabold" style="color: #A00000;">0₮</span>
+            </div>
+            <div class="mt-8">
+                <button onclick="checkout()" class="bg-red-800 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-red-900 transition-colors w-full">
+                    Төлбөр хийх
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Affiliate Marketing Section - No changes here, kept for completeness -->
+    <section id="affiliate-marketing" class="section-padding px-4" style="background-color: #F8F2E2;">
+        <div class="container mx-auto max-w-4xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" style="color: #1E2A4F;">Аффилиат Маркетинг</h2>
+            <p class="text-center text-gray-700 mb-8 max-w-2xl mx-auto">
+                Бидний Аффилиат Маркетингийн хөтөлбөрт нэгдэж, Made in Mongolia HUB-ийн бүтээгдэхүүн, үйлчилгээг сурталчлан орлого олоорой. Та энгийн хэрэглэгч байсан ч бидэнтэй хамтран ажиллах боломжтой!
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="card">
+                    <span class="text-6xl mb-4 inline-block" style="color: #A00000;">💸</span>
+                    <h3 class="text-2xl font-bold mb-2" style="color: #1E2A4F;">Орлого Олох</h3>
+                    <p class="text-gray-700">Таны холбоосоор хийгдсэн худалдан авалт бүрээс шимтгэл аваарай.</p>
+                </div>
+                <div class="card">
+                    <span class="text-6xl mb-4 inline-block" style="color: #A00000;">📣</span>
+                    <h3 class="text-2xl font-bold mb-2" style="color: #1E2A4F;">Хялбар Сурталчилгаа</h3>
+                    <p class="text-gray-700">Бүтээгдэхүүний линкээ сошиал медиа болон бусад сувгаар түгээгээрэй.</p>
+                </div>
+                <div class="card">
+                    <span class="text-6xl mb-4 inline-block" style="color: #A00000;">📈</span>
+                    <h3 class="text-2xl font-bold mb-2" style="color: #1E2A4F;">Өсөх Боломж</h3>
+                    <p class="text-gray-700">Илүү ихийг сурталчилж, илүү их орлого олох боломжтой.</p>
+                </div>
+            </div>
+            <div class="text-center mt-12">
+                <a href="blob:https://5ngmpwnrrqeyhhnywb90pet7f4qzg0co1r1ouu4r5d3oxdlts0-h763805538.scf.usercontent.goog/87f4f871-96a8-4b4d-9c28-2301382cfb7d#" class="bg-red-800 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-red-900 transition-colors shadow-lg">
+                    Одоо Бүртгүүлэх
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="gemini-feature" class="section-padding" style="background-color: #F8F2E2;">
+        <div class="container mx-auto max-w-4xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" style="color: #1E2A4F;">✨ Бүтээгдэхүүний Тайлбар Үүсгэгч</h2>
+            <p class="text-center text-gray-700 mb-8">
+                Өөрийн бүтээгдэхүүний нэр, гол онцлогуудыг оруулаад Gemini AI-аар сонирхолтой тайлбар үүсгээрэй.
+            </p>
+            <div class="card p-6">
+                <div class="mb-4">
+                    <label for="productName" class="block text-gray-700 text-lg font-medium mb-2">Бүтээгдэхүүний нэр:</label>
+                    <input type="text" id="productName" class="w-full p-3 border border-gray-300 rounded-md focus:ring-red-800 focus:border-red-800" placeholder="Жишээ: Монгол ноос ноолууран ороолт">
+                </div>
+                <div class="mb-6">
+                    <label for="productFeatures" class="block text-gray-700 text-lg font-medium mb-2">Гол онцлогууд (тус бүрийг таслалаар тусгаарлана):</label>
+                    <textarea id="productFeatures" rows="3" class="w-full p-3 border border-gray-300 rounded-md focus:ring-red-800 focus:border-red-800" placeholder="Жишээ: маш зөөлөн, дулаахан, тансаг, гар хийц"></textarea>
+                </div>
+                <div class="flex justify-center mb-6">
+                    <button id="generateDescriptionBtn" class="bg-red-800 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-red-900 transition-colors flex items-center justify-center">
+                        <span id="buttonText">✨ Тайлбар Үүсгэх</span>
+                        <div id="loadingSpinner" class="loading-spinner ml-3 hidden"></div>
+                    </button>
+                </div>
+                <div id="resultArea" class="mt-8 p-6" style="background-color: #FEF2E2; border: 1px solid #FAD1B6; border-radius: 0.5rem;">
+                    <h3 class="text-xl font-bold mb-4" style="color: #1E2A4F;">Үүсгэсэн Тайлбар:</h3>
+                    <p id="generatedDescription" class="text-gray-800 leading-relaxed italic">
+                        Тайлбар энд харагдана...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Footer -->
+    <footer id="contact" class="bg-gray-900 text-white py-12 px-4">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-6" style="color: #A00000;">Холбоо Барих</h2>
+            <div class="flex justify-center space-x-6 mb-8">
+                <a href="https://www.facebook.com/yourpage" target="_blank" class="social-icon">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/yourpage" target="_blank" class="social-icon">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://www.youtube.com/yourchannel" target="_blank" class="social-icon">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                <a href="https://www.linkedin.com/company/yourcompany" target="_blank" class="social-icon">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+            </div>
+            <p class="text-lg mb-2">И-мэйл: info@mmhub.mn</p>
+            <p class="text-lg mb-4">Утас: +976 7777 1234</p>
+            <p class="text-sm opacity-75 mt-8">© 2025 Made in Mongolia HUB. Бүх эрх хуулиар хамгаалагдсан.</p>
+        </div>
+    </footer>
+
+    <script>
+        let cart = []; // Store cart items globally for simplicity
+
+        function showProductDetail(name, description, price, imageUrl) {
+            const productDetailSection = document.getElementById('product-detail');
+            document.getElementById('detail-product-name').textContent = name; // Update name in navigation
+            document.getElementById('detail-product-title').textContent = name;
+            document.getElementById('detail-product-price').textContent = price;
+            document.getElementById('detail-product-description').textContent = description;
+            document.getElementById('detail-product-image').src = imageUrl;
+            
+            // Hide all other main sections
+            document.querySelectorAll('section').forEach(section => {
+                if (section.id !== 'product-detail') {
+                    section.classList.add('hidden');
+                }
+            });
+            productDetailSection.classList.remove('hidden');
+        }
+
+        function hideProductDetail() {
+            document.getElementById('product-detail').classList.add('hidden');
+            // Show all other main sections again
+            document.querySelectorAll('section').forEach(section => {
+                if (section.id !== 'product-detail' && section.id !== 'cart') { // Ensure cart stays hidden if not active
+                    section.classList.remove('hidden');
+                }
+            });
+        }
+
+        function addToCartFromDetail() {
+            const name = document.getElementById('detail-product-name').textContent;
+            const priceText = document.getElementById('detail-product-price').textContent;
+            const price = parseInt(priceText.replace('₮', '').replace(/,/g, '')); // Clean price for calculation
+
+            const existingItemIndex = cart.findIndex(item => item.name === name);
+
+            if (existingItemIndex > -1) {
+                cart[existingItemIndex].quantity += 1;
+            } else {
+                cart.push({ name, price, quantity: 1 });
+            }
+            updateCartDisplay();
+            hideProductDetail(); // Go back to featured products or main page after adding
+        }
+
+        function showCart() {
+            const cartSection = document.getElementById('cart');
+            // Hide all other main sections
+            document.querySelectorAll('section').forEach(section => {
+                if (section.id !== 'cart') {
+                    section.classList.add('hidden');
+                }
+            });
+            cartSection.classList.remove('hidden');
+            updateCartDisplay();
+        }
+
+        function hideCart() {
+            document.getElementById('cart').classList.add('hidden');
+            // Show all other main sections again
+            document.querySelectorAll('section').forEach(section => {
+                if (section.id !== 'product-detail' && section.id !== 'cart') { // Ensure product detail stays hidden if not active
+                    section.classList.remove('hidden');
+                }
+            });
+        }
+
+        function updateCartDisplay() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartTotalElement = document.getElementById('cart-total');
+            const emptyCartMessage = document.getElementById('empty-cart-message');
+            let total = 0;
+            cartItemsContainer.innerHTML = ''; // Clear current items
+
+            if (cart.length === 0) {
+                emptyCartMessage.classList.remove('hidden');
+            } else {
+                emptyCartMessage.classList.add('hidden');
+                cart.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.classList.add('flex', 'justify-between', 'items-center', 'p-3', 'bg-gray-50', 'rounded-md');
+                    itemDiv.innerHTML = `
+                        <div>
+                            <p class="font-semibold text-lg">${item.name}</p>
+                            <p class="text-gray-600">${item.quantity} x ${item.price.toLocaleString()}₮</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="changeQuantity(${index}, -1)" class="bg-gray-200 text-gray-700 px-2 py-1 rounded">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="changeQuantity(${index}, 1)" class="bg-gray-200 text-gray-700 px-2 py-1 rounded">+</button>
+                            <button onclick="removeItem(${index})" class="text-red-600 hover:text-red-800 ml-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm1 3a1 1 0 100 2h4a1 1 0 100-2H8z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                    cartItemsContainer.appendChild(itemDiv);
+                    total += item.price * item.quantity;
+                });
+            }
+            cartTotalElement.textContent = total.toLocaleString() + '₮';
+        }
+
+        function changeQuantity(index, delta) {
+            cart[index].quantity += delta;
+            if (cart[index].quantity <= 0) {
+                removeItem(index);
+            } else {
+                updateCartDisplay();
+            }
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            updateCartDisplay();
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                alert("Сагс хоосон байна. Бүтээгдэхүүн сонгоно уу.");
+                return;
+            }
+            alert("Төлбөр хийх үйл явц эхэллээ! (" + document.getElementById('cart-total').textContent + ")");
+            cart = [];
+            updateCartDisplay();
+            hideCart();
+        }
+
+        const generateDescriptionBtn = document.getElementById('generateDescriptionBtn');
+        const productNameInput = document.getElementById('productName');
+        const productFeaturesInput = document.getElementById('productFeatures');
+        const generatedDescriptionOutput = document.getElementById('generatedDescription');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const buttonText = document.getElementById('buttonText');
+
+        generateDescriptionBtn.addEventListener('click', async () => {
+            const productName = productNameInput.value.trim();
+            const productFeatures = productFeaturesInput.value.trim();
+
+            if (!productName || !productFeatures) {
+                generatedDescriptionOutput.textContent = "Бүтээгдэхүүний нэр болон гол онцлогуудыг бөглөнө үү.";
+                return;
+            }
+
+            loadingSpinner.classList.remove('hidden');
+            buttonText.classList.add('hidden');
+            generateDescriptionBtn.disabled = true;
+
+            const prompt = `Онлайн дэлгүүрт зориулсан, Монгол хэл дээр бүтээгдэхүүний сонирхолтой тайлбар үүсгэ. 
+                           Бүтээгдэхүүний нэр: '${productName}'. 
+                           Гол онцлогууд: '${productFeatures}'. 
+                           Тайлбарыг 100-200 үгэнд багтаана уу.`;
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    generatedDescriptionOutput.textContent = text;
+                } else {
+                    generatedDescriptionOutput.textContent = "Тайлбар үүсгэхэд алдаа гарлаа. Дахин оролдоно уу.";
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                generatedDescriptionOutput.textContent = "Сүлжээний алдаа гарлаа. Та интернет холболтоо шалгаад дахин оролдоно уу.";
+            } finally {
+                loadingSpinner.classList.add('hidden');
+                buttonText.classList.remove('hidden');
+                generateDescriptionBtn.disabled = false;
+            }
+        });
+    </script>
+
+
+</body></html>
